@@ -22,9 +22,25 @@ class ResumeMatcherTest {
         assertEquals(1,result.get(0).get("total"));
         assertEquals("LOW",result.get(1).get("level"));
     }
+    @Test void supportedAliasesMatchInBothDirectionsWithoutMatchingSubstrings() {
+        var result=matcher.score("JavaScript, React, Spring Boot, PostgreSQL and Node.js",
+            List.of(job(1,"js,reactjs,springboot,postgres,nodejs"))).get(0);
+        assertEquals(100,result.get("score"));
+        assertEquals(0,matcher.score("json reactive springbootcamp postgresqlish nodejscript",
+            List.of(job(2,"js,reactjs,springboot,postgres,nodejs"))).get(0).get("score"));
+    }
     @Test void validatesNullBlankAndOversizedResumes() {
         for (String resume : Arrays.asList(null,"","   ","x".repeat(150001)))
             assertThrows(IllegalArgumentException.class,()->matcher.score(resume,List.of()));
+    }
+    @Test void duplicateAliasesDoNotInflateScoresOrRepeatMissingSkills() {
+        var result=matcher.score("JavaScript",List.of(job(1,"javascript,JS,sql"))).get(0);
+        assertEquals(50,result.get("score"));
+        assertEquals(2,result.get("total"));
+        assertEquals(List.of("javascript"),result.get("matchedSkills"));
+        var missing=matcher.score("Java",List.of(job(2,"react,react.js,ReactJS,node,nodejs,node.js"))).get(0);
+        assertEquals(List.of("react","node.js"),missing.get("missingSkills"));
+        assertEquals(2,missing.get("total"));
     }
     @Test void appliesSameThresholdsAndHandlesJobsWithoutSkills() {
         assertEquals("MEDIUM",matcher.score("java sql",List.of(job(1,"java,sql,react"))).get(0).get("level"));

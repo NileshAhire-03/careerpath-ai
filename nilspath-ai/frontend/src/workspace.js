@@ -8,7 +8,7 @@ export function filterJobs(jobs, { search = '', city = 'All', type = 'All', dist
     [job.title, job.company, job.city, job.skills].join(' ').toLowerCase().includes(search.toLowerCase()) &&
     (city === 'All' || job.city?.trim() === city) &&
     (type === 'All' || job.type?.trim() === type) &&
-    (distance === '' || job.distanceKm <= Number(distance)) &&
+    (distance === '' || (typeof job.distanceKm === 'number' && Number.isFinite(job.distanceKm) && job.distanceKm >= 0 && job.distanceKm <= Number(distance))) &&
     (!skill || job.skills?.toLowerCase().includes(skill.toLowerCase())) &&
     (level === 'All' || matches.some(match => match.jobId === job.id && match.level === level.toUpperCase()))
   );

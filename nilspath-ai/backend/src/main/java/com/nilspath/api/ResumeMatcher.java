@@ -18,16 +18,27 @@ public class ResumeMatcher {
         return value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9+#.]+", " ").replaceAll("\\s+", " ").trim();
     }
 
+    private String canonicalSkill(String skill) {
+        return switch (skill) {
+            case "js" -> "javascript";
+            case "react.js", "reactjs" -> "react";
+            case "springboot" -> "spring boot";
+            case "postgres" -> "postgresql";
+            case "nodejs", "node" -> "node.js";
+            default -> skill;
+        };
+    }
+
     private boolean contains(String text, String skill) {
         String term = normalize(skill);
         if (term.isEmpty()) return false;
         List<String> terms = new ArrayList<>(List.of(term));
         terms.addAll(switch (term) {
-            case "javascript" -> List.of("js");
-            case "react" -> List.of("react.js", "reactjs");
-            case "spring boot" -> List.of("springboot");
-            case "postgresql" -> List.of("postgres");
-            case "node.js" -> List.of("nodejs", "node");
+            case "javascript", "js" -> List.of("javascript", "js");
+            case "react", "react.js", "reactjs" -> List.of("react", "react.js", "reactjs");
+            case "spring boot", "springboot" -> List.of("spring boot", "springboot");
+            case "postgresql", "postgres" -> List.of("postgresql", "postgres");
+            case "node.js", "nodejs", "node" -> List.of("node.js", "nodejs", "node");
             default -> List.of();
         });
         return terms.stream().anyMatch(t -> Pattern.compile("(?<![a-z0-9+#])" + Pattern.quote(t) + "(?![a-z0-9+#])").matcher(text).find());
@@ -39,7 +50,7 @@ public class ResumeMatcher {
         List<Map<String,Object>> result = new ArrayList<>();
         for (Job job : jobs) {
             List<String> required = Arrays.stream(Optional.ofNullable(job.skills).orElse("").split(","))
-                .map(this::normalize).filter(s -> !s.isEmpty()).distinct().limit(40).toList();
+                .map(this::normalize).filter(s -> !s.isEmpty()).map(this::canonicalSkill).distinct().limit(40).toList();
             List<String> found = required.stream().filter(s -> contains(text, s)).toList();
             List<String> missing = required.stream().filter(s -> !contains(text, s)).toList();
             int percent = required.isEmpty() ? 0 : (int)Math.round(100.0 * found.size() / required.size());

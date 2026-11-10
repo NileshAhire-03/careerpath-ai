@@ -57,6 +57,13 @@ class ApiRegressionTest {
     }
     JsonNode data(MvcResult result) throws Exception { return json.readTree(result.getResponse().getContentAsString()); }
 
+    @Test void malformedIdsAndMissingResumeFilesReturnJsonValidationErrors() throws Exception {
+        mvc.perform(post("/api/candidate/jobs/not-a-number/apply").header("Authorization",basic(candidate)))
+            .andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value("Missing or invalid request data."));
+        mvc.perform(multipart("/api/candidate/resume/upload").header("Authorization",basic(candidate)))
+            .andExpect(status().isBadRequest()).andExpect(jsonPath("$.error").value("Missing or invalid request data."));
+    }
+
     @Test void hostingRoutesArePublicButApiDataRemainsProtected() throws Exception {
         mvc.perform(get("/health")).andExpect(status().isOk()).andExpect(jsonPath("$.status").value("ok"));
         for(String path:List.of("/candidate/login","/candidate/register","/hr/login","/hr/register","/admin","/admin/login"))

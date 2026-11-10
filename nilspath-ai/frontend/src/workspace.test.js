@@ -8,6 +8,13 @@ const jobs = [
   { id: 3, title: 'Engineer', company: 'Three', city: ' Bengaluru ', type: 'Contract', distanceKm: 1200, skills: 'sql', active: true }
 ];
 
+test('distance limits exclude unknown and invalid distances while retaining zero', () => {
+  const entries = [null, undefined, '', -1, NaN, Infinity, 0, 10].map((distanceKm, id) => ({ id, distanceKm }));
+  assert.equal(filterJobs(entries).length, entries.length);
+  assert.deepEqual(filterJobs(entries, { distance: 10 }).map(job => job.id), [6, 7]);
+  assert.deepEqual(filterJobs(entries, { distance: 0 }).map(job => job.id), [6]);
+});
+
 test('filters include all distances by default and support any supplied city and type', () => {
   assert.deepEqual(jobFilterOptions(jobs), { cities: ['Bengaluru', 'Pune'], types: ['Contract', 'Remote'] });
   assert.equal(filterJobs(jobs).length, 3);

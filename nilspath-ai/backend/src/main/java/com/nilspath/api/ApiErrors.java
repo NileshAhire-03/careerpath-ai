@@ -25,7 +25,9 @@ public class ApiErrors {
             .map(e -> e.getField() + ": " + e.getDefaultMessage()).sorted().findFirst().orElse("Invalid request.");
         return ResponseEntity.badRequest().body(Map.of("error", error));
     }
-    @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class})
+    @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class,
+        org.springframework.web.multipart.support.MissingServletRequestPartException.class,
+        org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class})
     ResponseEntity<?> malformed(Exception ex) {
         return ResponseEntity.badRequest().body(Map.of("error", "Missing or invalid request data."));
     }

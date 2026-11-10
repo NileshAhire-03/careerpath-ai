@@ -8,11 +8,17 @@ A Java Spring Boot + React role-based recruitment platform starter.
 - MySQL 8+ for development and production
 
 ## Start backend
+From the `nilspath-ai` folder in Windows Command Prompt, after configuring `.env`, run:
+```cmd
+start-backend.cmd
+```
+This launcher loads `.env` and runs Maven inside `backend`, where `pom.xml` is located. Running `mvn spring-boot:run` directly inside `nilspath-ai` fails because that folder is not a Maven project.
+
 ```bash
 cd backend
 # Set ADMIN_USERNAME and ADMIN_PASSWORD in your shell first.
 # Password must be at least 12 characters; use a strong unique secret.
-
+mvn spring-boot:run
 ```
 Windows PowerShell:
 ```powershell
