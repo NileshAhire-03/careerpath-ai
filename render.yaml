@@ -20,9 +20,9 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         sync: false
-      # Bootstrap the new empty cloud schema; switch to validate after first deploy.
+      # Cloud schema is initialized; validate it on subsequent deployments.
       - key: DDL_AUTO
-        value: update
+        value: validate
       - key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
         value: 5
       - key: SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE
