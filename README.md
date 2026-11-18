@@ -15,6 +15,14 @@ Local passwords, database contents, dependencies, and generated files are exclud
 
 GitHub stores the source code. Running the complete application online also requires a Java backend host and a MySQL database, plus a frontend host configured for SPA routes and the backend API URL. See the application README for current production limitations.
 
+## Deploy the frontend on Netlify
+
+The root `netlify.toml` configures Netlify to install dependencies and build the React app in `nilspath-ai/frontend`, then publish its `dist` directory. Its SPA fallback supports direct visits and refreshes at routes such as `/candidate/login`, `/hr/login`, and `/admin/login`.
+
+This deploys the frontend only. Netlify does not run this repository's Java Spring Boot application or Dockerfile. The existing Java API and its database are still required for login, registration, jobs, and other workspace features. Running the complete application on Netlify requires migrating the backend to a supported Netlify runtime and its persistent data to Netlify Database.
+
+If using an already deployed HTTPS API, set `VITE_API_URL` in the Netlify project's environment variables to its public API URL, including `/api`, and redeploy. Set the API's `CORS_ORIGIN` to the frontend's HTTPS origin. Vite embeds this public URL during the build; never put credentials in it. Without this setting, the frontend currently defaults to the local development API at `http://localhost:8080/api`, which is unavailable to visitors.
+
 ## Deploy on Render with TiDB
 
 Use the repository's `render.yaml` as a Render Blueprint. It selects a free Docker web service. The Docker image builds React and bundles it into Spring Boot, so frontend and API share one HTTPS origin. Login URLs support direct visits and refreshes.
